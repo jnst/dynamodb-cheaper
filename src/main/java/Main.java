@@ -1,11 +1,17 @@
+package main.java;
+
 import java.util.List;
 
-import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 public class Main {
+
+	private static final String ACCESS_KEY = "xxxxx";
+	private static final String SECRET_KEY = "xxxxx";
 
 	/**
 	 * 全テーブルの中から指定の接頭辞のテーブルに対して、スループットを下げる
@@ -26,7 +32,8 @@ public class Main {
 	 * 環境設定
 	 */
 	private static AmazonDynamoDBClient createClient() throws Exception {
-		AmazonDynamoDBClient client = new AmazonDynamoDBClient(new ClasspathPropertiesFileCredentialsProvider());
+		AWSCredentials credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
+		AmazonDynamoDBClient client = new AmazonDynamoDBClient(credentials);
 		Region tokyo = Region.getRegion(Regions.AP_NORTHEAST_1);
 		client.setRegion(tokyo);
 		return client;
