@@ -1,5 +1,4 @@
-package main.java;
-
+package tool;
 import java.util.List;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -12,20 +11,29 @@ public class Main {
 
 	private static final String ACCESS_KEY = "xxxxx";
 	private static final String SECRET_KEY = "xxxxx";
+	private static Regions RESION = Regions.AP_NORTHEAST_1; //東京リージョン
 
 	/**
 	 * 全テーブルの中から指定の接頭辞のテーブルに対して、スループットを下げる
 	 */
 	public static void main(String[] args) throws Exception {
-		AmazonDynamoDBClient client = createClient();
-		Service service = new Service(client);
+		Service service = new Service(createClient());
+		
+		// ここで対象テーブルとスループットを指定
+		String tablePrefix = "dev-";
+		long readCapacityUnits = 10L;
+		long writeCapacityUnits = 5L;
 		
 		List<String> tableNames = service.getAllTableNames();
+		int count = 0;
 		for (String name :tableNames) {
-			if (name.startsWith("dev02-")) {
-				service.updateThroughput(name, 10L, 5L);
+			if (name.startsWith(tablePrefix)) {
+				service.updateThroughput(name, readCapacityUnits, writeCapacityUnits);
+				count++;
 			}
 		}
+		
+		System.out.printf("%d tables updated!%n", count);
 	}
 
 	/**
@@ -34,7 +42,7 @@ public class Main {
 	private static AmazonDynamoDBClient createClient() throws Exception {
 		AWSCredentials credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
 		AmazonDynamoDBClient client = new AmazonDynamoDBClient(credentials);
-		Region tokyo = Region.getRegion(Regions.AP_NORTHEAST_1);
+		Region tokyo = Region.getRegion(RESION);
 		client.setRegion(tokyo);
 		return client;
 	}

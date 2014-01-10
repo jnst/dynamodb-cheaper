@@ -1,4 +1,4 @@
-package main.java.sample;
+package sample;
 
 /*
  * Copyright 2012-2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.

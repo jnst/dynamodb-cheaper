@@ -1,5 +1,4 @@
-package main.java;
-
+package tool;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +29,8 @@ public class Service {
 		String lastEvaluatedTableName = null;
 		
 		while (hasNext) {
-			ListTablesRequest listTablesRequest = new ListTablesRequest().withExclusiveStartTableName(lastEvaluatedTableName);
-			ListTablesResult result = dynamoDB.listTables(listTablesRequest);
+			ListTablesRequest request = new ListTablesRequest().withExclusiveStartTableName(lastEvaluatedTableName);
+			ListTablesResult result = dynamoDB.listTables(request);
 			list.addAll(result.getTableNames());
 			
 			lastEvaluatedTableName = result.getLastEvaluatedTableName();
@@ -55,7 +54,7 @@ public class Service {
 			try {
 				TableDescription description = dynamoDB.updateTable(request).getTableDescription();
 				waitActive(description);
-				System.out.println(String.format("[%-35s] complete! read:%d,write:%d", tableName, read, write));
+				System.out.println(String.format("[%-35s] done! -> read:%d,write:%d", tableName, read, write));
 			} catch (Exception e) {
 				System.out.println(String.format("[%-35s] skip=%s", tableName, "Error: " + e.getMessage()));
 			}
@@ -70,10 +69,11 @@ public class Service {
 		TableDescription description = dynamoDB.describeTable(request).getTable();
 		ProvisionedThroughputDescription throughput = description.getProvisionedThroughput();
 		if ((read < throughput.getReadCapacityUnits()) || (write < throughput.getWriteCapacityUnits())) {
+			System.out.printf("[%-35s] start -> read:%d,write:%d%n", tableName, throughput.getReadCapacityUnits(), throughput.getWriteCapacityUnits());
 			return true;
 		}
 		
-		System.out.printf("[%-35s] skip=AlreadyLower (read:%d, write:%d)%n", tableName, throughput.getReadCapacityUnits(), throughput.getWriteCapacityUnits());
+		System.out.printf("[%-35s] skip=AlreadyLower -> read:%d,write:%d%n", tableName, throughput.getReadCapacityUnits(), throughput.getWriteCapacityUnits());
 		return false;
 	}
 
@@ -83,7 +83,7 @@ public class Service {
 	public void waitActive(TableDescription description) {
 		String tableName = description.getTableName();
 		String status = description.getTableStatus();
-		if (status.equals(TableStatus.ACTIVE)) {
+		if (TableStatus.valueOf(status) == TableStatus.ACTIVE) {
 			return;
 		}
 		
@@ -108,12 +108,15 @@ public class Service {
 	public boolean isActive(String tableName) {
 		DescribeTableRequest request = new DescribeTableRequest(tableName);
 		TableDescription description = dynamoDB.describeTable(request).getTable();
-		String status = description.getTableStatus();
 		
-		if (TableStatus.valueOf(status) == TableStatus.ACTIVE) {
+		String status = description.getTableStatus();
+		boolean isActive = TableStatus.valueOf(status) == TableStatus.ACTIVE;
+		String suffix = isActive ? "" : "...";
+		System.out.printf("  status is %s%s%n", status, suffix);
+		
+		if (isActive) {
 			return true;
 		}
-		System.out.printf("  status is %s...%n", status);
 		return false;
 	}
 
