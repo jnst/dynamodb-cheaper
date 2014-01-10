@@ -3,7 +3,7 @@ dynamodb-tools
 
 DynamoDB の全テーブルのスループット下げたかったのでつくった
 
-### 使い方: Mainクラス修正して実行
+### 使い方: Mainクラス修正して実行する
 
 ```java
 public class Main {
@@ -67,14 +67,14 @@ public void updateThroughput(String tableName, long read, long write) {
     if (isNeedChange(tableName, read, write)) {
         ProvisionedThroughput throughput = new ProvisionedThroughput(read, write);
         UpdateTableRequest request = new UpdateTableRequest()
-                .withTableName(tableName)
-                .withProvisionedThroughput(throughput);
+            .withTableName(tableName)
+            .withProvisionedThroughput(throughput);
         try {
-                TableDescription description = dynamoDB.updateTable(request).getTableDescription();
-                waitActive(description);
-                System.out.println(String.format("[%-35s] done! -> read:%d,write:%d", tableName, read, write));
+            TableDescription description = dynamoDB.updateTable(request).getTableDescription();
+            waitActive(description);
+            System.out.println(String.format("[%-35s] done! -> read:%d,write:%d", tableName, read, write));
         } catch (Exception e) {
-                System.out.println(String.format("[%-35s] skip=%s", tableName, "Error: " + e.getMessage()));
+            System.out.println(String.format("[%-35s] skip=%s", tableName, "Error: " + e.getMessage()));
         }
     }
 }
