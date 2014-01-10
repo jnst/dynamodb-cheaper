@@ -6,8 +6,8 @@ DynamoDB の全テーブルのスループット下げたかったのでつく�
 ```java
 public class Main {
 
-    private static final String ACCESS_KEY = "xxxxx";
-    private static final String SECRET_KEY = "xxxxx";
+    private static final String ACCESS_KEY = "xxxxx"; //アクセスキー
+    private static final String SECRET_KEY = "xxxxx"; //シークレットキー
     private static Regions RESION = Regions.AP_NORTHEAST_1; //東京リージョン
 
     /**
@@ -24,10 +24,10 @@ public class Main {
         List<String> tableNames = service.getAllTableNames();
         int count = 0;
         for (String name :tableNames) {
-                if (name.startsWith(tablePrefix)) {
-                        service.updateThroughput(name, readCapacityUnits, writeCapacityUnits);
-                        count++;
-                }
+            if (name.startsWith(tablePrefix)) {
+                service.updateThroughput(name, readCapacityUnits, writeCapacityUnits);
+                count++;
+            }
         }
         
         System.out.printf("%d tables updated!%n", count);
